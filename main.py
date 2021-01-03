@@ -1,4 +1,5 @@
 import urllib.request
+from urllib.parse import urlsplit, urlunsplit
 from html_table_parser import HTMLTableParser
 from datetime import date
 from datetime import datetime
@@ -13,6 +14,14 @@ FROM_EMAIL = Email(os.environ.get('FROM_EMAIL'))
 TO_EMAIL = To(os.environ.get('TO_EMAIL'))
 EMAIL_SUBJECT = os.environ.get('EMAIL_SUBJECT')
 SG = sendgrid.SendGridAPIClient(api_key=os.environ.get('SENDGRID_API'))
+CITY = os.environ.get('CITY').lower()[0]
+
+JERSEY_CITY_BASE_URL = 'http://taxes.cityofjerseycity.com'
+NEWARK_BASE_URL = 'https://taxes.ci.newark.nj.us'
+BASE_URLS = {
+    'j': JERSEY_CITY_BASE_URL,
+    'n': NEWARK_BASE_URL
+}
 
 
 def sentence_case(str):
@@ -29,7 +38,7 @@ def url_get_table(url):
 
 def check(event, context):
     today = date.today()
-    url = f'http://taxes.cityofjerseycity.com/ViewPay?accountNumber={ACCOUNT_NUMBER}'
+    url = f'{BASE_URLS.get(CITY)}/ViewPay?accountNumber={ACCOUNT_NUMBER}'
     tables = url_get_table(url)
 
     output = ''
@@ -49,7 +58,7 @@ def check(event, context):
                 output += f'<u>{description}</u> of <u>{open_balance}</u> due on <u>{due_date}</u><br/>\n'
 
     if len(output) > 0:
-        output += f'<br/>Go pay it at <a href="{url}">taxes.cityofjerseycity.com</a>'
+        output += f'<br/>Go pay it at <a href="{url}">{urlsplit(url).netloc}</a>'
         plain_text = BeautifulSoup(output).get_text()
         print(plain_text)
 
