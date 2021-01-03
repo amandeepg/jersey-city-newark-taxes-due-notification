@@ -50,12 +50,9 @@ def check(event, context):
                 output += f'<u>{description}</u> of <u>{open_balance}</u> due on <u>{due_date}</u><br/>\n'
 
     if len(output) > 0:
-        html_content = HtmlContent(output)
-        plain_text = BeautifulSoup(html_text).get_text()
-        plain_text_content = Content("text/plain", plain_text)
-
+        plain_text = BeautifulSoup(output).get_text()
         print(plain_text)
 
-        SG.send(message=Mail(Email(FROM_EMAIL), To(TO_EMAIL), EMAIL_SUBJECT, plain_text_content, html_content))
+        SG.send(message=Mail(Email(FROM_EMAIL), To(TO_EMAIL), EMAIL_SUBJECT, Content("text/plain", plain_text), HtmlContent(output)))
 
     return output
