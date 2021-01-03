@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 import sendgrid
 from sendgrid.helpers.mail import *
+from bs4 import BeautifulSoup
 
 ACCOUNT_NUMBER = os.environ.get('ACCOUNT_NUMBER')
 DAYS_THRESHOLD = int(os.environ.get('DAYS_THRESHOLD', '31'))
@@ -46,12 +47,15 @@ def check(event, context):
         if open_balance_dollars > 0.0:
             days_diff = (datetime.strptime(due_date, '%m/%d/%Y').date() - TODAY).days
             if days_diff < DAYS_THRESHOLD:
-                output += f'{description} of {open_balance} due on {due_date}\n'
+                output += f'<u>{description}</u> of <u>{open_balance}</u> due on <u>{due_date}</u><br/>\n'
 
     if len(output) > 0:
-        print(output)
+        html_content = HtmlContent(output)
+        plain_text = BeautifulSoup(html_text).get_text()
+        plain_text_content = Content("text/plain", plain_text)
 
-        mail = Mail(Email(FROM_EMAIL), To(TO_EMAIL), EMAIL_SUBJECT, Content("text/plain", output))
-        SG.client.mail.send.post(request_body=mail.get())
+        print(plain_text)
+
+        SG.send(message=Mail(Email(FROM_EMAIL), To(TO_EMAIL), EMAIL_SUBJECT, plain_text_content, html_content))
 
     return output

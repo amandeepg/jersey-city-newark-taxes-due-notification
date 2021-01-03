@@ -1,2 +1,4 @@
 html-table-parser-python3>=0.1.5
 sendgrid>=6.4.8
+bs4>=0.0.1
+beautifulsoup4>=4.9.3
