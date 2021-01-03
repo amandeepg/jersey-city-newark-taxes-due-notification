@@ -1,0 +1,2 @@
+html-table-parser-python3>=0.1.5
+sendgrid>=6.4.8
