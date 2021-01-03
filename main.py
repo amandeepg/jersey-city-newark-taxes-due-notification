@@ -31,7 +31,8 @@ def url_get_table(url):
 
 def check(event, context):
     TODAY = date.today()
-    tables = url_get_table(f'http://taxes.cityofjerseycity.com/ViewPay?accountNumber={ACCOUNT_NUMBER}')
+    url = f'http://taxes.cityofjerseycity.com/ViewPay?accountNumber={ACCOUNT_NUMBER}'
+    tables = url_get_table(url)
 
     output = ''
     for line in reversed(tables[0]):
@@ -50,6 +51,7 @@ def check(event, context):
                 output += f'<u>{description}</u> of <u>{open_balance}</u> due on <u>{due_date}</u><br/>\n'
 
     if len(output) > 0:
+        output += f'<br/>Go pay it at <a href="{url}">taxes.cityofjerseycity.com</a>'
         plain_text = BeautifulSoup(output).get_text()
         print(plain_text)
 
